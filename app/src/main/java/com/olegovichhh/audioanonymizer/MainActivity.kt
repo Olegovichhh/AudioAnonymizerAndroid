@@ -15,11 +15,11 @@ class MainActivity:Activity(){
  override fun onCreate(b:Bundle?){super.onCreate(b);val root=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(36,44,36,44);gravity=Gravity.CENTER_HORIZONTAL}
   fun txt(s:String,z:Float)=TextView(this).apply{text=s;textSize=z;setPadding(0,8,0,8)}
   fun btn(s:String,f:()->Unit)=Button(this).apply{text=s;setOnClickListener{f()}}
-  root.addView(txt("Audio Anonymizer",26f));root.addView(txt("Local audio processor • v0.3",13f));file=txt("Файл не выбран",15f);root.addView(file)
+  root.addView(txt("Audio Anonymizer",26f));root.addView(txt("Local audio processor • v0.4",13f));file=txt("Файл не выбран",15f);root.addView(file)
   root.addView(btn("ВЫБРАТЬ АУДИО"){startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="audio/*"},10)})
   val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL};row.addView(btn("▶ ОРИГИНАЛ"){playUri(source)},LinearLayout.LayoutParams(0,-2,1f));row.addView(btn("▶ РЕЗУЛЬТАТ"){processed?.let(::playFile)?:run{status.text="Сначала обработайте файл"}},LinearLayout.LayoutParams(0,-2,1f));root.addView(row)
   val pv=txt("Pitch: 0 st",15f);root.addView(pv);pitch=SeekBar(this).apply{max=24;progress=12;setOnSeekBarChangeListener(listener{p->pv.text="Pitch: "+(p-12)+" st"})};root.addView(pitch)
-  val tv=txt("Tempo: 1.00×",15f);root.addView(tv);tempo=SeekBar(this).apply{max=100;progress=50;setOnSeekBarChangeListener(listener{p->tv.text=String.format("Tempo: %.2f×",.5+p/100.0)})};root.addView(tempo)
+  val tv=txt("Time stretch: 1.00×",15f);root.addView(tv);tempo=SeekBar(this).apply{max=100;progress=50;setOnSeekBarChangeListener(listener{p->tv.text=String.format("Time stretch: %.2f×",.5+p/100.0)})};root.addView(tempo)
   val gv=txt("Granular: 0%",15f);root.addView(gv);grain=SeekBar(this).apply{max=100;setOnSeekBarChangeListener(listener{p->gv.text="Granular: "+p+"%"})};root.addView(grain)
   val presets=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL};listOf("ЛЁГКИЙ" to intArrayOf(2,47,12),"СРЕДНИЙ" to intArrayOf(-3,44,28),"СИЛЬНЫЙ" to intArrayOf(-6,40,45)).forEach{pair->presets.addView(btn(pair.first){pitch.progress=pair.second[0]+12;tempo.progress=pair.second[1];grain.progress=pair.second[2]},LinearLayout.LayoutParams(0,-2,1f))};root.addView(presets)
   root.addView(btn("ОБРАБОТАТЬ"){process()});root.addView(btn("СОХРАНИТЬ WAV"){save()});progress=ProgressBar(this).apply{isIndeterminate=true;visibility=ProgressBar.GONE};root.addView(progress);status=txt("WAV / MP3 / M4A / FLAC через системный декодер",13f);root.addView(status);setContentView(ScrollView(this).apply{addView(root)})}
