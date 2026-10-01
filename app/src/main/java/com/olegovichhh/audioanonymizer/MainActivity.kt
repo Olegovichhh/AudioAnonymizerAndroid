@@ -42,7 +42,6 @@ class MainActivity : Activity() {
         setContentView(ScrollView(this).apply{addView(root)})
     }
     private fun listener(fn:(Int)->Unit)=object:SeekBar.OnSeekBarChangeListener{override fun onProgressChanged(s:SeekBar?,p:Int,u:Boolean)=fn(p);override fun onStartTrackingTouch(s:SeekBar?){};override fun onStopTrackingTouch(s:SeekBar?){}}
-    override fun onActivityResult(r:Int,c:Int,d:Intent?){super.onActivityResult(r,c,d);if(r==10&&c==RESULT_OK){source=d?.data;fileLabel.text=source?.let(::nameOf)?:"WAV";status.text="Файл готов к обработке"}}
     private fun process(p:Int,t:Float,g:Int){val u=source?:run{status.text="Выберите WAV";return};status.text="Обработка…"
         thread{try{val wav=contentResolver.openInputStream(u)!!.use{WavDsp.read(it)};val out=WavDsp.process(wav,p.toFloat(),t,if(g==0)0 else 80,g/100f);val f=File(cacheDir,"processed.wav");f.outputStream().use{WavDsp.write(out,it)};processed=f;runOnUiThread{status.text="Готово: ${f.length()/1024} KB"}}catch(e:Exception){runOnUiThread{status.text="Ошибка: ${e.message}"}}}
     }
@@ -52,5 +51,5 @@ class MainActivity : Activity() {
     private fun playUri(u:Uri?){u?:run{status.text="Выберите WAV";return};player?.release();player=MediaPlayer().apply{setDataSource(this@MainActivity,u);prepare();start()}}
     private fun playFile(f:File){player?.release();player=MediaPlayer().apply{setDataSource(f.absolutePath);prepare();start()}}
     override fun onDestroy(){player?.release();super.onDestroy()}
-    override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?,){super.onActivityResult(requestCode,resultCode,data);if(requestCode==10&&resultCode==RESULT_OK){source=data?.data;fileLabel.text=source?.let(::nameOf)?:"WAV";status.text="Файл готов"}else if(requestCode==20&&resultCode==RESULT_OK){val u=data?.data;val f=pendingSave;if(u!=null&&f!=null){contentResolver.openOutputStream(u)?.use{o->f.inputStream().use{it.copyTo(o)}};status.text="WAV сохранён"}}}
+    override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){super.onActivityResult(requestCode,resultCode,data);if(requestCode==10&&resultCode==RESULT_OK){source=data?.data;fileLabel.text=source?.let(::nameOf)?:"WAV";status.text="Файл готов"}else if(requestCode==20&&resultCode==RESULT_OK){val u=data?.data;val f=pendingSave;if(u!=null&&f!=null){contentResolver.openOutputStream(u)?.use{o->f.inputStream().use{it.copyTo(o)}};status.text="WAV сохранён"}}}
 }
